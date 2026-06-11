@@ -1,66 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Pi-Pal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SERP Preview Tool</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="header-content"> <h1>Pi-Pal</h1>
-            <nav>
-                <ul>
-                    <li><a href="https://ameruddin-ibrahim.webflow.io">My Blog</a></li>
-                    <li><a href="https://my.cytron.io/c-raspberry-pi/p-raspberry-pi-5">Buy Your First Pi</a></li>
-                    <li><a href="https://ameruddin-ibrahim.webflow.io">X (previously Twitter)</a></li>
-                </ul>
-            </nav>
-    </header>
+  <header>
+    <div class="header-inner">
+      <h1>SERP Preview Tool</h1>
+      <p>Preview how your page appears in Google search results</p>
+    </div>
+  </header>
 
+  <main>
+    <div class="panel inputs-panel">
+      <h2>Page Details</h2>
 
-    <section id="hero">
-        <div class="hero-content">
-            <h1>Pi-Pal: Your Hub for Inspiring Raspberry Pi Projects</h1>
-            <p>This website is a collection of my projects, designed to inspire you to start your own. From practical applications to fun experiments, explore the possibilities of raspberry pi.</p>
-            <div class="hero-buttons">
-                <button>Sign Up for Newsletter</button>
+      <div class="field">
+        <label for="page-title">Page Title</label>
+        <input type="text" id="page-title" placeholder="e.g. Best SEO Tools for 2025 | Your Brand">
+        <div class="counter">
+          <span id="title-count" class="count">0</span>
+          <span class="limit">/ 60</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="meta-desc">Meta Description</label>
+        <textarea id="meta-desc" placeholder="e.g. Discover the top SEO tools used by professionals to boost rankings and drive organic traffic." rows="4"></textarea>
+        <div class="counter">
+          <span id="desc-count" class="count">0</span>
+          <span class="limit">/ 160</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="page-url">Page URL</label>
+        <input type="url" id="page-url" placeholder="https://example.com/your-page">
+      </div>
+    </div>
+
+    <div class="panel preview-panel">
+      <div class="preview-section">
+        <h2>Google Preview</h2>
+        <div class="google-search-mock">
+          <div class="serp-card">
+            <div class="serp-site">
+              <div class="serp-favicon">G</div>
+              <div class="serp-site-name" id="preview-site">example.com</div>
             </div>
-    </section>
-
-    <section id="project">
-        <div class="project-content">
-            <h1>My Pi Projects.</h1>
-        <div class="image-container">
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
+            <div class="serp-url" id="preview-url">https://example.com</div>
+            <a class="serp-title" id="preview-title">Your page title will appear here</a>
+            <div class="serp-desc" id="preview-desc">Your meta description will appear here. Make it compelling and informative to improve click-through rates from search results.</div>
+          </div>
         </div>
-        </div>
-    </section>
+      </div>
 
-    
-    <section id="quotation">
-        <div>
-            <p><em>To Pi or not to Pi? That is the question.  But seriously, the answer is always Pi.  Free time spent tinkering is time well-spent, even if you just end up with a blinking LED and a profound sense of accomplishment.</em></p>
-            <p><cite>Gemini, Twins Castor and Pollux</cite></p>
+      <div class="output-section">
+        <div class="output-header">
+          <h2>Generated Meta Tags</h2>
+          <button id="copy-btn">Copy</button>
         </div>
-    </section>
+        <pre id="meta-output"></pre>
+      </div>
+    </div>
+  </main>
 
-    <section id="cta">
-        <div>
-            <h3>Connect with me on X!</h3>
-            <p>I'd love to hear about your projects.</p>
-            <button>Connect on X</button>
-        </div>
-    </section>
-
-    <footer>
-        <div>
-            <p>Copyright © Ameruddin Ibrahim 2025</p>
-
-        </div>
-    </footer>
+  <script src="main.js"></script>
 </body>
 </html>
