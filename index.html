@@ -3,67 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SERP Preview Tool</title>
+  <title>Keyword Cluster Organizer</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <div class="header-inner">
-      <h1>SERP Preview Tool</h1>
-      <p>Preview how your page appears in Google search results</p>
+      <div>
+        <h1>Keyword Cluster Organizer</h1>
+        <p>Group, assign, and track your keywords by topic</p>
+      </div>
+      <div class="header-actions">
+        <button id="export-btn" class="btn-secondary">Export CSV</button>
+        <button id="add-cluster-btn" class="btn-primary">+ New Cluster</button>
+      </div>
     </div>
   </header>
 
   <main>
-    <div class="panel inputs-panel">
-      <h2>Page Details</h2>
-
-      <div class="field">
-        <label for="page-title">Page Title</label>
-        <input type="text" id="page-title" placeholder="e.g. Best SEO Tools for 2025 | Your Brand">
-        <div class="counter">
-          <span id="title-count" class="count">0</span>
-          <span class="limit">/ 60</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="meta-desc">Meta Description</label>
-        <textarea id="meta-desc" placeholder="e.g. Discover the top SEO tools used by professionals to boost rankings and drive organic traffic." rows="4"></textarea>
-        <div class="counter">
-          <span id="desc-count" class="count">0</span>
-          <span class="limit">/ 160</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="page-url">Page URL</label>
-        <input type="url" id="page-url" placeholder="https://example.com/your-page">
-      </div>
-    </div>
-
-    <div class="panel preview-panel">
-      <div class="preview-section">
-        <h2>Google Preview</h2>
-        <div class="google-search-mock">
-          <div class="serp-card">
-            <div class="serp-site">
-              <div class="serp-favicon">G</div>
-              <div class="serp-site-name" id="preview-site">example.com</div>
-            </div>
-            <div class="serp-url" id="preview-url">https://example.com</div>
-            <a class="serp-title" id="preview-title">Your page title will appear here</a>
-            <div class="serp-desc" id="preview-desc">Your meta description will appear here. Make it compelling and informative to improve click-through rates from search results.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="output-section">
-        <div class="output-header">
-          <h2>Generated Meta Tags</h2>
-          <button id="copy-btn">Copy</button>
-        </div>
-        <pre id="meta-output"></pre>
+    <div id="clusters-grid"></div>
+    <div id="empty-state">
+      <div class="empty-inner">
+        <p>No clusters yet. Create one to get started.</p>
+        <button id="empty-add-btn" class="btn-primary">+ New Cluster</button>
       </div>
     </div>
   </main>

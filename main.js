@@ -1,111 +1,198 @@
-const titleInput = document.getElementById('page-title');
-const descInput = document.getElementById('meta-desc');
-const urlInput = document.getElementById('page-url');
+// ─── State ───────────────────────────────────────────────────────────────────
 
-const previewTitle = document.getElementById('preview-title');
-const previewDesc = document.getElementById('preview-desc');
-const previewUrl = document.getElementById('preview-url');
-const previewSite = document.getElementById('preview-site');
+let state = { clusters: [] };
 
-const titleCount = document.getElementById('title-count');
-const descCount = document.getElementById('desc-count');
+const STATUS = ['todo', 'in-progress', 'done'];
+const STATUS_LABELS = { 'todo': 'To Do', 'in-progress': 'In Progress', 'done': 'Done' };
 
-const metaOutput = document.getElementById('meta-output');
-const copyBtn = document.getElementById('copy-btn');
-
-const TITLE_LIMIT = 60;
-const DESC_LIMIT = 160;
-
-function updateCounter(el, count, limit) {
-  el.textContent = count;
-  el.className = 'count';
-  if (count === 0) return;
-  if (count <= Math.floor(limit * 0.85)) el.classList.add('good');
-  else if (count <= limit) el.classList.add('warn');
-  else el.classList.add('over');
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
 }
 
-function truncate(text, limit) {
-  return text.length > limit ? text.slice(0, limit) + '...' : text;
+// ─── Persistence ─────────────────────────────────────────────────────────────
+
+function save() {
+  localStorage.setItem('kco-state', JSON.stringify(state));
 }
 
-function formatUrl(raw) {
-  try {
-    const url = new URL(raw);
-    const parts = url.pathname.split('/').filter(Boolean);
-    const breadcrumb = [url.hostname, ...parts].join(' › ');
-    return { display: breadcrumb, site: url.hostname };
-  } catch {
-    return { display: raw || 'https://example.com', site: raw ? raw.replace(/https?:\/\//, '').split('/')[0] : 'example.com' };
-  }
+function load() {
+  const raw = localStorage.getItem('kco-state');
+  if (raw) state = JSON.parse(raw);
 }
 
-function generateMetaTags(title, desc, url) {
-  const lines = [];
+// ─── Actions ─────────────────────────────────────────────────────────────────
 
-  if (title) {
-    lines.push(`<title>${title}</title>`);
-    lines.push(`<meta name="title" content="${title}">`);
-  }
-  if (desc) {
-    lines.push(`<meta name="description" content="${desc}">`);
-  }
-
-  if (title || desc || url) {
-    lines.push('');
-    lines.push('<!-- Open Graph -->');
-    if (title) lines.push(`<meta property="og:title" content="${title}">`);
-    if (desc) lines.push(`<meta property="og:description" content="${desc}">`);
-    if (url) lines.push(`<meta property="og:url" content="${url}">`);
-
-    lines.push('');
-    lines.push('<!-- Twitter Card -->');
-    lines.push(`<meta name="twitter:card" content="summary_large_image">`);
-    if (title) lines.push(`<meta name="twitter:title" content="${title}">`);
-    if (desc) lines.push(`<meta name="twitter:description" content="${desc}">`);
-  }
-
-  return lines.join('\n');
+function addCluster() {
+  state.clusters.push({ id: uid(), name: 'New Cluster', targetUrl: '', keywords: [] });
+  save();
+  render();
 }
 
-function update() {
-  const title = titleInput.value;
-  const desc = descInput.value;
-  const url = urlInput.value;
-
-  updateCounter(titleCount, title.length, TITLE_LIMIT);
-  updateCounter(descCount, desc.length, DESC_LIMIT);
-
-  previewTitle.textContent = title
-    ? truncate(title, TITLE_LIMIT)
-    : 'Your page title will appear here';
-
-  previewDesc.textContent = desc
-    ? truncate(desc, DESC_LIMIT)
-    : 'Your meta description will appear here. Make it compelling and informative to improve click-through rates from search results.';
-
-  const { display, site } = formatUrl(url);
-  previewUrl.textContent = display;
-  previewSite.textContent = site;
-
-  metaOutput.textContent = generateMetaTags(title, desc, url);
+function removeCluster(id) {
+  state.clusters = state.clusters.filter(c => c.id !== id);
+  save();
+  render();
 }
 
-copyBtn.addEventListener('click', () => {
-  const text = metaOutput.textContent;
-  if (!text.trim()) return;
-  navigator.clipboard.writeText(text).then(() => {
-    copyBtn.textContent = 'Copied!';
-    copyBtn.classList.add('copied');
-    setTimeout(() => {
-      copyBtn.textContent = 'Copy';
-      copyBtn.classList.remove('copied');
-    }, 2000);
+function updateCluster(id, field, value) {
+  const cluster = state.clusters.find(c => c.id === id);
+  if (cluster) cluster[field] = value;
+  save();
+}
+
+function addKeyword(clusterId, text) {
+  if (!text.trim()) return false;
+  const cluster = state.clusters.find(c => c.id === clusterId);
+  if (cluster) cluster.keywords.push({ id: uid(), text: text.trim(), status: 'todo' });
+  save();
+  render();
+  return true;
+}
+
+function removeKeyword(clusterId, keywordId) {
+  const cluster = state.clusters.find(c => c.id === clusterId);
+  if (cluster) cluster.keywords = cluster.keywords.filter(k => k.id !== keywordId);
+  save();
+  render();
+}
+
+function cycleStatus(clusterId, keywordId) {
+  const cluster = state.clusters.find(c => c.id === clusterId);
+  const kw = cluster && cluster.keywords.find(k => k.id === keywordId);
+  if (kw) kw.status = STATUS[(STATUS.indexOf(kw.status) + 1) % STATUS.length];
+  save();
+  render();
+}
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+
+function exportCSV() {
+  const rows = [['Keyword', 'Cluster', 'Target URL', 'Status']];
+  state.clusters.forEach(c => {
+    c.keywords.forEach(kw => {
+      rows.push([`"${kw.text}"`, `"${c.name}"`, `"${c.targetUrl}"`, STATUS_LABELS[kw.status]]);
+    });
   });
+  if (rows.length === 1) {
+    alert('No keywords to export.');
+    return;
+  }
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'keyword-clusters.csv';
+  a.click();
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function esc(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderCluster(c) {
+  const total = c.keywords.length;
+  const done = c.keywords.filter(k => k.status === 'done').length;
+
+  return `
+    <div class="cluster-card" data-id="${c.id}">
+      <div class="cluster-header">
+        <input class="cluster-name" value="${esc(c.name)}"
+          data-action="update-name" data-cluster-id="${c.id}">
+        <button class="btn-icon" data-action="remove-cluster"
+          data-cluster-id="${c.id}" title="Delete cluster">✕</button>
+      </div>
+
+      <input class="cluster-url" value="${esc(c.targetUrl)}"
+        placeholder="Target page URL..."
+        data-action="update-url" data-cluster-id="${c.id}">
+
+      ${total > 0 ? `<div class="cluster-stats">${total} keyword${total !== 1 ? 's' : ''} · ${done} done</div>` : ''}
+
+      <div class="keywords-list">
+        ${c.keywords.map(kw => `
+          <div class="keyword-row">
+            <span class="kw-text">${esc(kw.text)}</span>
+            <button class="status-badge status-${kw.status}"
+              data-action="cycle-status"
+              data-cluster-id="${c.id}"
+              data-keyword-id="${kw.id}">
+              ${STATUS_LABELS[kw.status]}
+            </button>
+            <button class="btn-icon"
+              data-action="remove-keyword"
+              data-cluster-id="${c.id}"
+              data-keyword-id="${kw.id}"
+              title="Remove">✕</button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="add-kw-form">
+        <input class="kw-input" placeholder="Add a keyword…" data-cluster-id="${c.id}">
+        <button class="btn-add-kw" data-action="add-keyword" data-cluster-id="${c.id}">Add</button>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const grid = document.getElementById('clusters-grid');
+  const empty = document.getElementById('empty-state');
+
+  if (state.clusters.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+  } else {
+    empty.style.display = 'none';
+    grid.innerHTML = state.clusters.map(renderCluster).join('');
+  }
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+document.addEventListener('click', e => {
+  const action = e.target.dataset.action;
+  if (!action) return;
+  const cid = e.target.dataset.clusterId;
+  const kid = e.target.dataset.keywordId;
+
+  if (action === 'remove-cluster') removeCluster(cid);
+  if (action === 'remove-keyword') removeKeyword(cid, kid);
+  if (action === 'cycle-status') cycleStatus(cid, kid);
+  if (action === 'add-keyword') {
+    const input = document.querySelector(`.kw-input[data-cluster-id="${cid}"]`);
+    if (addKeyword(cid, input.value)) {
+      document.querySelector(`.kw-input[data-cluster-id="${cid}"]`).focus();
+    }
+  }
 });
 
-titleInput.addEventListener('input', update);
-descInput.addEventListener('input', update);
-urlInput.addEventListener('input', update);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('kw-input')) {
+    const cid = e.target.dataset.clusterId;
+    if (addKeyword(cid, e.target.value)) {
+      document.querySelector(`.kw-input[data-cluster-id="${cid}"]`).focus();
+    }
+  }
+});
 
-update();
+document.addEventListener('change', e => {
+  const action = e.target.dataset.action;
+  const cid = e.target.dataset.clusterId;
+  if (action === 'update-name') updateCluster(cid, 'name', e.target.value);
+  if (action === 'update-url') updateCluster(cid, 'targetUrl', e.target.value);
+});
+
+document.getElementById('add-cluster-btn').addEventListener('click', addCluster);
+document.getElementById('export-btn').addEventListener('click', exportCSV);
+document.getElementById('empty-add-btn').addEventListener('click', addCluster);
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+load();
+render();
