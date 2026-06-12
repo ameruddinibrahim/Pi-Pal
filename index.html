@@ -3,33 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Keyword Cluster Organizer</title>
+  <title>SEO Toolkit</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <div class="header-inner">
       <div>
-        <h1>Keyword Cluster Organizer</h1>
-        <p>Group, assign, and track your keywords by topic</p>
+        <h1>SEO Toolkit</h1>
+        <p>Keyword clusters &amp; SERP analysis</p>
       </div>
-      <div class="header-actions">
-        <button id="export-btn" class="btn-secondary">Export CSV</button>
-        <button id="add-cluster-btn" class="btn-primary">+ New Cluster</button>
-      </div>
+      <div id="header-actions" class="header-actions"></div>
     </div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="clusters">Clusters</button>
+      <button class="tab-btn" data-tab="reports">SERP Reports</button>
+    </nav>
   </header>
 
   <main>
-    <div id="clusters-grid"></div>
-    <div id="empty-state">
-      <div class="empty-inner">
-        <p>No clusters yet. Create one to get started.</p>
-        <button id="empty-add-btn" class="btn-primary">+ New Cluster</button>
+    <!-- Clusters View -->
+    <div id="view-clusters">
+      <div id="clusters-grid"></div>
+      <div id="empty-state">
+        <div class="empty-inner">
+          <p>No clusters yet. Create one to get started.</p>
+          <button id="empty-add-btn" class="btn-primary">+ New Cluster</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERP Reports View -->
+    <div id="view-reports" style="display:none">
+      <div id="reports-layout">
+        <aside id="reports-sidebar">
+          <div class="sidebar-header">
+            <span>Reports</span>
+            <label class="btn-small" for="file-input">+ Import</label>
+            <input type="file" id="file-input" accept=".xlsx" style="display:none">
+          </div>
+          <div id="reports-list"></div>
+          <div id="reports-empty">
+            <p>Drop a SEMrush .xlsx<br>file here to start</p>
+            <label class="btn-primary" for="file-input">Browse file</label>
+          </div>
+        </aside>
+        <div id="report-detail">
+          <div id="report-placeholder">
+            <p>Import a .xlsx file to see your SERP analysis</p>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
+  <div id="toast"></div>
+
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
