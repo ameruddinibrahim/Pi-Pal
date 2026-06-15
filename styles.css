@@ -783,6 +783,117 @@ header {
 /* My domain highlight in table */
 .my-domain-row { background: #fffbeb !important; }
 
+/* ─── Traffic Potential ───────────────────────────────────────────────────── */
+
+.traffic-panel {
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.traffic-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.traffic-header h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #5f6368;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.volume-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volume-input label {
+  font-size: 0.8rem;
+  color: #5f6368;
+}
+
+.volume-input input {
+  width: 110px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.volume-input input:focus { border-color: #1a73e8; }
+
+.traffic-headline {
+  font-size: 0.95rem;
+  color: #202124;
+  margin-bottom: 12px;
+}
+
+.traffic-headline strong {
+  color: #1a73e8;
+  font-size: 1.1rem;
+}
+
+.ai-penalty-flag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.72rem;
+  background: #fce8e6;
+  color: #c5221f;
+  border-radius: 4px;
+  padding: 2px 8px;
+  vertical-align: middle;
+}
+
+.traffic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  max-width: 360px;
+}
+
+.traffic-table th {
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #5f6368;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dadce0;
+}
+
+.traffic-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.traffic-table tr:last-child td { border-bottom: none; }
+.traffic-table tr.top-3 { background: #f0fdf4; font-weight: 600; }
+
+.traffic-note {
+  font-size: 0.76rem;
+  color: #9aa0a6;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.traffic-empty {
+  font-size: 0.85rem;
+  color: #5f6368;
+  line-height: 1.5;
+}
+
 /* ─── Toast ───────────────────────────────────────────────────────────────── */
 
 #toast {

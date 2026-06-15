@@ -24,7 +24,13 @@ const CONFIG = {
   competitiveMin:  40,   // Score >= this → Competitive (else Hard)
   skewedDiff:      15,   // avg − median > this → flag avg as skewed
   ugcDomains:      ['reddit.com', 'quora.com', 'medium.com', 'stackexchange.com', 'stackoverflow.com'],
-  myDomain:        'vantagemarkets'
+  myDomain:        'vantagemarkets',
+
+  // Industry-average organic CTR by position (desktop). Tune as your own GSC data comes in.
+  ctrCurve: { 1: 0.28, 2: 0.15, 3: 0.11, 4: 0.08, 5: 0.07, 6: 0.05, 7: 0.04, 8: 0.035, 9: 0.03, 10: 0.025 },
+  // When an AI Overview is present it pushes organic results down and absorbs clicks.
+  // Multiplier applied to every organic CTR (0.65 = ~35% fewer clicks).
+  aiOverviewCTRMultiplier: 0.65
 };
 
 const BUCKET_META = {
@@ -193,6 +199,12 @@ function deleteReport(id) {
   renderReports();
 }
 
+function setSearchVolume(id, value) {
+  const report = state.reports.find(r => r.id === id);
+  if (report) report.searchVolume = value;
+  save();
+}
+
 function assignKeywordToCluster(keyword, clusterId) {
   const cluster = state.clusters.find(c => c.id === clusterId);
   if (!cluster) return false;
@@ -284,6 +296,21 @@ function analyzeReport(report) {
   };
 }
 
+// Estimate monthly clicks per position from a search volume.
+// Applies the AI Overview penalty when that feature is present in the SERP.
+function estimateTraffic(searchVolume, hasAIOverview) {
+  const vol = Number(searchVolume) || 0;
+  const mult = hasAIOverview ? CONFIG.aiOverviewCTRMultiplier : 1;
+  return Object.entries(CONFIG.ctrCurve).map(([pos, baseCtr]) => {
+    const ctr = baseCtr * mult;
+    return {
+      position: Number(pos),
+      ctr,
+      clicks: Math.round(vol * ctr)
+    };
+  });
+}
+
 // ─── Render Clusters ──────────────────────────────────────────────────────────
 
 function esc(str) {
@@ -368,6 +395,10 @@ function renderReportDetail(report) {
   const formatOpps = Object.entries(FORMAT_TIPS)
     .filter(([feature]) => serpFeatures.includes(feature))
     .filter(([feature], i, arr) => arr.findIndex(([f]) => FORMAT_TIPS[f] === FORMAT_TIPS[feature]) === i);
+
+  const searchVolume = report.searchVolume || '';
+  const trafficRows = estimateTraffic(searchVolume, details.hasAIOverview);
+  const top3Clicks = trafficRows.slice(0, 3).reduce((s, r) => s + r.clicks, 0);
 
   return `
     <div class="report-detail-inner">
@@ -456,6 +487,39 @@ function renderReportDetail(report) {
           <div class="benchmark-value">${avgRefDomains.toLocaleString()}</div>
           <div class="benchmark-label">Avg Ref. Domains<br>Top 10</div>
         </div>
+      </div>
+
+      <!-- Traffic potential -->
+      <div class="traffic-panel">
+        <div class="traffic-header">
+          <h3>Traffic Potential</h3>
+          <div class="volume-input">
+            <label for="volume-${report.id}">Monthly search volume</label>
+            <input type="number" id="volume-${report.id}" min="0" placeholder="e.g. 5400"
+              value="${searchVolume}" data-action="set-volume" data-report-id="${report.id}">
+          </div>
+        </div>
+        ${searchVolume ? `
+          <div class="traffic-headline">
+            Ranking top 3 ≈ <strong>${top3Clicks.toLocaleString()}</strong> clicks/mo
+            ${details.hasAIOverview ? `<span class="ai-penalty-flag">AI Overview present — CTR reduced ${Math.round((1 - CONFIG.aiOverviewCTRMultiplier) * 100)}%</span>` : ''}
+          </div>
+          <table class="traffic-table">
+            <thead><tr><th>Position</th><th>CTR</th><th>Est. clicks / mo</th></tr></thead>
+            <tbody>
+              ${trafficRows.map(r => `
+                <tr class="${r.position <= 3 ? 'top-3' : ''}">
+                  <td>#${r.position}</td>
+                  <td>${(r.ctr * 100).toFixed(1)}%</td>
+                  <td>${r.clicks.toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p class="traffic-note">Based on industry-average organic CTR by position${details.hasAIOverview ? ', adjusted for the AI Overview' : ''}. A rough planning estimate, not a guarantee.</p>
+        ` : `
+          <p class="traffic-empty">Enter the keyword's monthly search volume (from the SEMrush Keyword Overview) to estimate the clicks you'd win at each position.</p>
+        `}
       </div>
 
       <!-- Soft spots -->
@@ -578,6 +642,10 @@ document.addEventListener('change', e => {
   const cid    = e.target.dataset.clusterId;
   if (action === 'update-name') updateCluster(cid, 'name',      e.target.value);
   if (action === 'update-url')  updateCluster(cid, 'targetUrl', e.target.value);
+  if (action === 'set-volume') {
+    setSearchVolume(e.target.dataset.reportId, e.target.value);
+    renderReports();
+  }
 });
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
