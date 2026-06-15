@@ -1,66 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Pi-Pal</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO Toolkit</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="header-content"> <h1>Pi-Pal</h1>
-            <nav>
-                <ul>
-                    <li><a href="https://ameruddin-ibrahim.webflow.io">My Blog</a></li>
-                    <li><a href="https://my.cytron.io/c-raspberry-pi/p-raspberry-pi-5">Buy Your First Pi</a></li>
-                    <li><a href="https://ameruddin-ibrahim.webflow.io">X (previously Twitter)</a></li>
-                </ul>
-            </nav>
-    </header>
+  <header>
+    <div class="header-inner">
+      <div>
+        <h1>SEO Toolkit</h1>
+        <p>Keyword clusters &amp; SERP analysis</p>
+      </div>
+      <div id="header-actions" class="header-actions"></div>
+    </div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="clusters">Clusters</button>
+      <button class="tab-btn" data-tab="reports">SERP Reports</button>
+    </nav>
+  </header>
 
-
-    <section id="hero">
-        <div class="hero-content">
-            <h1>Pi-Pal: Your Hub for Inspiring Raspberry Pi Projects</h1>
-            <p>This website is a collection of my projects, designed to inspire you to start your own. From practical applications to fun experiments, explore the possibilities of raspberry pi.</p>
-            <div class="hero-buttons">
-                <button>Sign Up for Newsletter</button>
-            </div>
-    </section>
-
-    <section id="project">
-        <div class="project-content">
-            <h1>My Pi Projects.</h1>
-        <div class="image-container">
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
-            <div class="placeholder"></div>
+  <main>
+    <!-- Clusters View -->
+    <div id="view-clusters">
+      <div id="clusters-grid"></div>
+      <div id="empty-state">
+        <div class="empty-inner">
+          <p>No clusters yet. Create one to get started.</p>
+          <button id="empty-add-btn" class="btn-primary">+ New Cluster</button>
         </div>
-        </div>
-    </section>
+      </div>
+    </div>
 
-    
-    <section id="quotation">
-        <div>
-            <p><em>To Pi or not to Pi? That is the question.  But seriously, the answer is always Pi.  Free time spent tinkering is time well-spent, even if you just end up with a blinking LED and a profound sense of accomplishment.</em></p>
-            <p><cite>Gemini, Twins Castor and Pollux</cite></p>
+    <!-- SERP Reports View -->
+    <div id="view-reports" style="display:none">
+      <div id="reports-layout">
+        <aside id="reports-sidebar">
+          <div class="sidebar-header">
+            <span>Reports</span>
+            <label class="btn-small" for="file-input">+ Import</label>
+            <input type="file" id="file-input" accept=".xlsx" style="display:none">
+          </div>
+          <div id="reports-list"></div>
+          <div id="reports-empty">
+            <p>Drop a SEMrush .xlsx<br>file here to start</p>
+            <label class="btn-primary" for="file-input">Browse file</label>
+          </div>
+        </aside>
+        <div id="report-detail">
+          <div id="report-placeholder">
+            <p>Import a .xlsx file to see your SERP analysis</p>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </main>
 
-    <section id="cta">
-        <div>
-            <h3>Connect with me on X!</h3>
-            <p>I'd love to hear about your projects.</p>
-            <button>Connect on X</button>
-        </div>
-    </section>
+  <div id="toast"></div>
 
-    <footer>
-        <div>
-            <p>Copyright © Ameruddin Ibrahim 2025</p>
-
-        </div>
-    </footer>
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
